@@ -1,3 +1,4 @@
+
 package bridge
 
 import (
@@ -951,6 +952,22 @@ func (d *driver) CreateEndpoint(nid, eid string, ifInfo driverapi.InterfaceInfo,
 		return types.InternalErrorf("failed to add the host (%s) <=> sandbox (%s) pair interfaces: %v", hostIfName, containerIfName, err)
 	}
 
+	fmt.Println("Host interface name ------------------->")
+	fmt.Println(epOptions["bandwidth"])
+
+	bandwidthOption := epOptions["bandwidth"]
+
+	if bandwidthOption != nil{
+
+		bandwidth := bandwidthOption.(int)
+		fmt.Println(hostIfName)
+		fmt.Println(ep)
+		SetContainerBandwidth(hostIfName, bandwidth)
+	}
+
+
+
+
 	// Get the host side pipe interface handler
 	host, err := d.nlh.LinkByName(hostIfName)
 	if err != nil {
@@ -1505,4 +1522,26 @@ func electMacAddress(epConfig *endpointConfiguration, ip net.IP) net.HardwareAdd
 		return epConfig.MacAddress
 	}
 	return netutils.GenerateMACFromIP(ip)
+}
+
+
+func SetContainerBandwidth(iFaceName string, NetBandwidth int) error {
+	fmt.Println("setting bandwidth start....\n")
+	NetBand := fmt.Sprintf("%dkbps", NetBandwidth)
+	burst := fmt.Sprintf("%dkb", NetBandwidth/10)
+
+	tcbinary, err := exec.LookPath("tc")
+	if err != nil {
+		fmt.Printf("Error while LookPath command!!!!!!!!")
+	}
+
+	out, er := exec.Command(tcbinary, "qdisc", "add", "dev", iFaceName, "root", "tbf", "rate", NetBand, "burst", burst, "latency", "70ms", "mtu", "1540").Output()
+
+	if er != nil {
+		fmt.Printf("Error while executing command!!!!!!!!")
+		fmt.Println(er)
+		fmt.Printf("%s\n", out)
+	}
+	fmt.Println("setting bandwidth end....\n")
+	return nil
 }

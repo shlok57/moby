@@ -893,6 +893,7 @@ func (container *Container) BuildCreateEndpointOptions(n libnetwork.Network, epC
 	createOptions = append(createOptions,
 		libnetwork.CreateOptionPortMapping(pbList),
 		libnetwork.CreateOptionExposedPorts(exposeList))
+	createOptions = append(createOptions, libnetwork.EndpointOptionGeneric(options.Generic{"bandwidth":container.HostConfig.NetworkBandwidth}))
 
 	return createOptions, nil
 }

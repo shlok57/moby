@@ -390,7 +390,7 @@ type HostConfig struct {
 	ShmSize         int64             // Total shm memory usage
 	Sysctls         map[string]string `json:",omitempty"` // List of Namespaced sysctls used for the container
 	Runtime         string            `json:",omitempty"` // Runtime to use with this container
-
+	NetworkBandwidth 	string
 	// Applicable to Windows
 	ConsoleSize [2]uint   // Initial console size (height,width)
 	Isolation   Isolation // Isolation technology of the container (e.g. default, hyperv)
